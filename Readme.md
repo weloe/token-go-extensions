@@ -28,3 +28,15 @@ func CreateTokenEnforcer() {
     }
 }
 ```
+## jwt
+stateless-enforcer
+```go
+import (
+    "github.com/weloe/token-go-extensions/jwt"
+)
+
+func main() {
+    enforcer, err := jwt.NewEnforcer()
+}
+```
+
