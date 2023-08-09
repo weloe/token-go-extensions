@@ -17,23 +17,11 @@ var _ persist.BatchAdapter = (*RingAdapter)(nil)
 
 type RingAdapter struct {
 	client *redis.Ring
+	*persist.JsonSerializer
 }
 
 func (r *RingAdapter) GetClient() *redis.Ring {
 	return r.client
-}
-
-func (r *RingAdapter) Serialize(session *model.Session) ([]byte, error) {
-	return json.Marshal(session)
-}
-
-func (r *RingAdapter) UnSerialize(bytes []byte) (*model.Session, error) {
-	s := &model.Session{}
-	err := json.Unmarshal(bytes, s)
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
 }
 
 func NewRingAdapter(addrs map[string]string) *RingAdapter {

@@ -15,23 +15,11 @@ var _ persist.SerializerAdapter = (*RedisAdapter)(nil)
 
 type RedisAdapter struct {
 	client *redis.Client
+	*persist.JsonSerializer
 }
 
 func (r *RedisAdapter) GetClient() *redis.Client {
 	return r.client
-}
-
-func (r *RedisAdapter) Serialize(session *model.Session) ([]byte, error) {
-	return json.Marshal(session)
-}
-
-func (r *RedisAdapter) UnSerialize(bytes []byte) (*model.Session, error) {
-	s := &model.Session{}
-	err := json.Unmarshal(bytes, s)
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
 }
 
 func NewAdapter(addr string, username string, password string, db int) (*RedisAdapter, error) {

@@ -2,7 +2,7 @@ module github.com/weloe/token-go-extensions/jwt
 
 go 1.18
 
-require github.com/weloe/token-go v0.0.5
+require github.com/weloe/token-go v0.0.7
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
