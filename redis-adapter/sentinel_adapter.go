@@ -7,8 +7,6 @@ import (
 
 var _ persist.Adapter = (*SentinelAdapter)(nil)
 
-var _ persist.SerializerAdapter = (*SentinelAdapter)(nil)
-
 var _ persist.BatchAdapter = (*SentinelAdapter)(nil)
 
 type SentinelAdapter struct {
@@ -27,5 +25,5 @@ func NewSentinelAdapter(masterName string, addrs []string, username string, pass
 }
 
 func NewSentinelAdapterByOptions(options *redis.FailoverOptions) *SentinelAdapter {
-	return &SentinelAdapter{&RedisAdapter{client: redis.NewFailoverClient(options)}}
+	return &SentinelAdapter{&RedisAdapter{client: redis.NewFailoverClient(options), serializer: persist.NewJsonSerializer()}}
 }

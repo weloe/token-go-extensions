@@ -2,11 +2,13 @@ module github.com/weloe/token-go-extensions/jwt
 
 go 1.18
 
-require github.com/weloe/token-go v0.0.7
+require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/weloe/token-go v0.0.8
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

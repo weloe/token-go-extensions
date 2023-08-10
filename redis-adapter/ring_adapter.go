@@ -2,22 +2,25 @@ package redis_adapter
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/go-redis/redis/v8"
-	"github.com/weloe/token-go/model"
 	"github.com/weloe/token-go/persist"
+	"github.com/weloe/token-go/util"
+	"log"
+	"reflect"
 	"time"
 )
 
 var _ persist.Adapter = (*RingAdapter)(nil)
 
-var _ persist.SerializerAdapter = (*RingAdapter)(nil)
-
 var _ persist.BatchAdapter = (*RingAdapter)(nil)
 
 type RingAdapter struct {
-	client *redis.Ring
-	*persist.JsonSerializer
+	client     *redis.Ring
+	serializer persist.Serializer
+}
+
+func (r *RingAdapter) SetSerializer(serializer persist.Serializer) {
+	r.serializer = serializer
 }
 
 func (r *RingAdapter) GetClient() *redis.Ring {
@@ -33,7 +36,7 @@ func NewRingAdapter(addrs map[string]string) *RingAdapter {
 
 // NewRingAdapterByOptions adapter for redis ring client
 func NewRingAdapterByOptions(options *redis.RingOptions) *RingAdapter {
-	return &RingAdapter{client: redis.NewRing(options)}
+	return &RingAdapter{client: redis.NewRing(options), serializer: persist.NewJsonSerializer()}
 }
 
 func (r *RingAdapter) GetStr(key string) string {
@@ -90,21 +93,40 @@ func (r *RingAdapter) UpdateStrTimeout(key string, timeout int64) error {
 	return nil
 }
 
-func (r *RingAdapter) Get(key string) interface{} {
-	res, err := r.client.Get(context.Background(), key).Result()
+func (r *RingAdapter) Get(key string, t ...reflect.Type) interface{} {
+	value, err := r.client.Get(context.Background(), key).Result()
 	if err != nil {
 		return nil
 	}
-	s := &model.Session{}
-	err = json.Unmarshal([]byte(res), s)
+	if r.serializer == nil || (t == nil && len(t) == 0) {
+		return value
+	}
+	bytes, err := util.InterfaceToBytes(value)
 	if err != nil {
+		log.Printf("Adapter.Get() failed: %v", err)
 		return nil
 	}
-	return s
+	instance := reflect.New(t[0].Elem()).Interface()
+	err = r.serializer.UnSerialize(bytes, instance)
+	if err != nil {
+		log.Printf("Adapter.Get() failed: %v", err)
+		return nil
+	}
+
+	return instance
 }
 
 func (r *RingAdapter) Set(key string, value interface{}, timeout int64) error {
-	err := r.client.Set(context.Background(), key, value, time.Duration(timeout)*time.Second).Err()
+	var err error
+	if r.serializer != nil {
+		bytes, err := r.serializer.Serialize(value)
+		if err != nil {
+			return err
+		}
+		err = r.client.Set(context.Background(), key, bytes, time.Duration(timeout)*time.Second).Err()
+	} else {
+		err = r.client.Set(context.Background(), key, value, time.Duration(timeout)*time.Second).Err()
+	}
 	if err != nil {
 		return err
 	}
@@ -112,7 +134,16 @@ func (r *RingAdapter) Set(key string, value interface{}, timeout int64) error {
 }
 
 func (r *RingAdapter) Update(key string, value interface{}) error {
-	err := r.client.Set(context.Background(), key, value, 0).Err()
+	var err error
+	if r.serializer != nil {
+		bytes, err := r.serializer.Serialize(value)
+		if err != nil {
+			return err
+		}
+		err = r.client.Set(context.Background(), key, bytes, 0).Err()
+	} else {
+		err = r.client.Set(context.Background(), key, value, 0).Err()
+	}
 	if err != nil {
 		return err
 	}
