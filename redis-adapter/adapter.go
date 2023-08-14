@@ -103,7 +103,7 @@ func (r *RedisAdapter) Get(key string, t ...reflect.Type) interface{} {
 		return nil
 	}
 
-	if r.serializer == nil || (t == nil && len(t) == 0) {
+	if r.serializer == nil || t == nil || len(t) == 0 {
 		return value
 	}
 	bytes, err := util.InterfaceToBytes(value)
