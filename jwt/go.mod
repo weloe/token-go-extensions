@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/weloe/token-go v0.0.8
+	github.com/weloe/token-go v0.1.2
 )
 
 require (

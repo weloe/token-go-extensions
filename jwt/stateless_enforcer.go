@@ -205,6 +205,6 @@ func (s *StatelessEnforcer) GetTokenTimeout(token string) (int64, error) {
 
 // GetTokenTimeoutByCtx similar with GetTokenTimeout
 func (s *StatelessEnforcer) GetTokenTimeoutByCtx(ctx ctx.Context) (int64, error) {
-	token := s.e.GetRequestToken(ctx)
+	token := s.GetRequestToken(ctx)
 	return s.GetTokenTimeout(token)
 }

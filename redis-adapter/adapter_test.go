@@ -9,7 +9,7 @@ import (
 )
 
 func newTestRedisAdapter(t *testing.T) persist.Adapter {
-	addr := "127.0.0.1:6379"
+	addr := "ip:host"
 	username := ""
 	pwd := "pwd"
 	db := 1
@@ -18,6 +18,20 @@ func newTestRedisAdapter(t *testing.T) persist.Adapter {
 		t.Fatalf("NewAdapter() failed: %v", err)
 	}
 	return adapter
+}
+
+func TestJsonRedisAdapter(t *testing.T) {
+	var err error
+	adapter := newTestRedisAdapter(t)
+	if err != nil {
+		t.Fatalf("NewAdapter() failed: %v", err)
+	}
+	err = adapter.Set("token-go:session:1", 1, -1)
+	if err != nil {
+		t.Fatalf("Set() failed: %v", err)
+	}
+	session := adapter.Get("token-go:session:1")
+	println(session.(string))
 }
 
 func TestDefaultAdapter_StrOperation(t *testing.T) {

@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/weloe/token-go v0.0.8
+	github.com/weloe/token-go v0.1.2
 )
 
 require (
