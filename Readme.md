@@ -6,6 +6,7 @@ token-go extensions support adapter, watcher ...
 
 use Redis to store data
 
+### Usage
 ```go
 import (
     tokenGo "github.com/weloe/token-go"
@@ -29,7 +30,11 @@ func CreateTokenEnforcer() {
 }
 ```
 ## jwt
-stateless-enforcer
+`go get github.com/weloe/token-go-extensions/jwt`
+
+StatelessEnforcer used `github.com/golang-jwt/jwt` to generate and parse token
+
+### Usage
 ```go
 import (
     "github.com/weloe/token-go-extensions/jwt"
@@ -37,6 +42,15 @@ import (
 
 func main() {
     enforcer, err := jwt.NewEnforcer()
+	if err != nil {
+		log.Printf("NewEnforcer() failed: %v", err)
+	}
+	token, err := enforcer.Login("1", nil)
+	if err != nil {
+		log.Printf("Login() failed: %v", err)
+	} else {
+		log.Printf("login success, token = %v", token)
+	}
 }
 ```
 
