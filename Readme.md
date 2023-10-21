@@ -54,3 +54,8 @@ func main() {
 }
 ```
 
+## redis-updatablewatcher
+`go get github.com/weloe/token-go-extensions/redis-updatablewatcher`
+
+use redis publish/subscribe implement UpdatableWatcher
+
