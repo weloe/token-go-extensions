@@ -213,3 +213,11 @@ func (r *RingAdapter) DeleteBatchFilteredKey(filterKeyPrefix string) error {
 
 	return nil
 }
+
+func (r *RingAdapter) GetCountsFilteredKey(filterKeyPrefix string) (int, error) {
+	keys, err := r.client.Keys(context.Background(), filterKeyPrefix).Result()
+	if err != nil {
+		return 0, err
+	}
+	return len(keys), nil
+}

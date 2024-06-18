@@ -1,6 +1,7 @@
 package redis_adapter
 
 import (
+	"context"
 	"github.com/go-redis/redis/v8"
 	"github.com/weloe/token-go/persist"
 )
@@ -11,6 +12,14 @@ var _ persist.BatchAdapter = (*SentinelAdapter)(nil)
 
 type SentinelAdapter struct {
 	*RedisAdapter
+}
+
+func (r *SentinelAdapter) GetCountsFilteredKey(filterKeyPrefix string) (int, error) {
+	keys, err := r.client.Keys(context.Background(), filterKeyPrefix).Result()
+	if err != nil {
+		return 0, err
+	}
+	return len(keys), nil
 }
 
 // NewSentinelAdapter adapter for sentinel mode

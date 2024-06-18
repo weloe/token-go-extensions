@@ -9,15 +9,30 @@ import (
 )
 
 func newTestRedisAdapter(t *testing.T) persist.Adapter {
-	addr := "ip:host"
+	addr := "localhost:6379"
 	username := ""
-	pwd := "pwd"
-	db := 1
+	pwd := ""
+	db := 0
 	adapter, err := NewAdapter(addr, username, pwd, db)
 	if err != nil {
 		t.Fatalf("NewAdapter() failed: %v", err)
 	}
 	return adapter
+}
+
+func TestSet(t *testing.T) {
+	adapter := newTestRedisAdapter(t)
+	_ = adapter.Set("1", &model.Session{
+		Id:   "1",
+		Type: "2",
+	}, 233)
+
+	get := adapter.Get("1")
+	t.Log(get)
+
+	adapter.SetStr("2", get.(string), -1)
+	get = adapter.Get("2")
+	t.Log(get)
 }
 
 func TestJsonRedisAdapter(t *testing.T) {
@@ -118,7 +133,7 @@ func TestDefaultAdapter_InterfaceOperation(t *testing.T) {
 		t.Fatalf("Set() failed: can't set data")
 	}
 
-	if v := defaultAdapter.Get("k2"); v != nil {
+	if v := defaultAdapter.Get("k2"); v != "v2" {
 		t.Fatalf("Get() failed: value is %s, want 'v2' ", v)
 	}
 
@@ -147,8 +162,8 @@ func TestDefaultAdapter_InterfaceOperation(t *testing.T) {
 	t.Logf("get timeout = %v", timeout)
 
 	getRes := defaultAdapter.Get("k")
-	if getRes != nil {
-		t.Fatalf("GetGetStr() failed: %v", getRes)
+	if getRes == nil {
+		t.Fatalf("GetGetStr() failed: want is %v, get nil", getRes)
 	}
 
 	err3 := defaultAdapter.Update("k", "L")
@@ -157,7 +172,7 @@ func TestDefaultAdapter_InterfaceOperation(t *testing.T) {
 	}
 
 	getRes = defaultAdapter.Get("k")
-	if getRes != nil {
+	if getRes != "L" {
 		t.Fatalf("Get() failed: GetStr() =  %v want 'L' ", getRes)
 	}
 
@@ -212,6 +227,9 @@ func TestEnforcer(t *testing.T) {
 		t.Errorf("enforcer.SetSession() failed: %v", err)
 	}
 	getSession := enforcer.GetSession("1")
+	if getSession == nil {
+		t.Fatalf("GetSession(\"1\") == nil")
+	}
 	t.Log(getSession.TokenSignList)
 	if getSession.TokenSignSize() != 2 {
 		t.Errorf("unexpected tokenSignSize = %v ", getSession.TokenSignSize())
