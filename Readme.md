@@ -19,7 +19,7 @@ var (
 
 func CreateTokenEnforcer() {
     var err error
-    adapter, err := redisadapter.NewAdapter("ip:port", "password", dbNum)
+    adapter, err := redisadapter.NewAdapter("ip:port", "username", "password", dbNum)
     if err != nil {
         log.Fatalf("NewRedisAdapter() failed: %v", err)
     }
@@ -58,4 +58,8 @@ func main() {
 `go get github.com/weloe/token-go-extensions/redis-updatablewatcher`
 
 use redis publish/subscribe implement UpdatableWatcher
+
+## distribute-session
+
+## etcd-watcher
 
